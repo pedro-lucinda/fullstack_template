@@ -1,3 +1,6 @@
+export type { AgentChatRequest } from "./types/AgentChatRequest.ts";
+export type { AgentChatResponse } from "./types/AgentChatResponse.ts";
+export type { ChatWithAgentApiV1AgentChatPost200, ChatWithAgentApiV1AgentChatPost422, ChatWithAgentApiV1AgentChatPostMutation, ChatWithAgentApiV1AgentChatPostMutationRequest, ChatWithAgentApiV1AgentChatPostMutationResponse } from "./types/ChatWithAgentApiV1AgentChatPost.ts";
 export type { CreateTodoApiV1TodosPost201, CreateTodoApiV1TodosPost422, CreateTodoApiV1TodosPostMutation, CreateTodoApiV1TodosPostMutationRequest, CreateTodoApiV1TodosPostMutationResponse } from "./types/CreateTodoApiV1TodosPost.ts";
 export type { DeleteTodoApiV1TodosTodoIdDelete204, DeleteTodoApiV1TodosTodoIdDelete422, DeleteTodoApiV1TodosTodoIdDeleteMutation, DeleteTodoApiV1TodosTodoIdDeleteMutationResponse, DeleteTodoApiV1TodosTodoIdDeletePathParams } from "./types/DeleteTodoApiV1TodosTodoIdDelete.ts";
 export type { HTTPValidationError } from "./types/HTTPValidationError.ts";
@@ -7,6 +10,7 @@ export type { TodoCreate } from "./types/TodoCreate.ts";
 export type { TodoRead } from "./types/TodoRead.ts";
 export type { ToggleTodoApiV1TodosTodoIdTogglePatch200, ToggleTodoApiV1TodosTodoIdTogglePatch422, ToggleTodoApiV1TodosTodoIdTogglePatchMutation, ToggleTodoApiV1TodosTodoIdTogglePatchMutationResponse, ToggleTodoApiV1TodosTodoIdTogglePatchPathParams } from "./types/ToggleTodoApiV1TodosTodoIdTogglePatch.ts";
 export type { ValidationError } from "./types/ValidationError.ts";
+export { chatWithAgentApiV1AgentChatPost } from "./clients/chatWithAgentApiV1AgentChatPost.ts";
 export { createTodoApiV1TodosPost } from "./clients/createTodoApiV1TodosPost.ts";
 export { deleteTodoApiV1TodosTodoIdDelete } from "./clients/deleteTodoApiV1TodosTodoIdDelete.ts";
 export { healthHealthGet } from "./clients/healthHealthGet.ts";

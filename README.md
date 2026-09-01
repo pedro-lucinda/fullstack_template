@@ -19,6 +19,8 @@ workflow inspired by AWS's agentic SDLC.
 - FastAPI + SQLAlchemy (async) + Alembic migrations
 - PostgreSQL
 - Auth0 JWT verification (JWKS-based)
+- LangChain example agent (`app/agents/`) — a tool-calling agent exposed at
+  `POST /api/v1/agent/chat`, see `specs/agent-chat/`
 - uv for dependency/environment management
 - pytest for tests
 
@@ -38,6 +40,7 @@ workflow inspired by AWS's agentic SDLC.
 cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env
 # fill in your Auth0 tenant details in both .env files
+# optionally set OPENAI_API_KEY in apps/backend/.env to use the example agent
 docker compose up --build
 ```
 

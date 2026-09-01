@@ -1,3 +1,6 @@
+export type { AgentChatRequest } from "./AgentChatRequest.ts";
+export type { AgentChatResponse } from "./AgentChatResponse.ts";
+export type { ChatWithAgentApiV1AgentChatPost200, ChatWithAgentApiV1AgentChatPost422, ChatWithAgentApiV1AgentChatPostMutation, ChatWithAgentApiV1AgentChatPostMutationRequest, ChatWithAgentApiV1AgentChatPostMutationResponse } from "./ChatWithAgentApiV1AgentChatPost.ts";
 export type { CreateTodoApiV1TodosPost201, CreateTodoApiV1TodosPost422, CreateTodoApiV1TodosPostMutation, CreateTodoApiV1TodosPostMutationRequest, CreateTodoApiV1TodosPostMutationResponse } from "./CreateTodoApiV1TodosPost.ts";
 export type { DeleteTodoApiV1TodosTodoIdDelete204, DeleteTodoApiV1TodosTodoIdDelete422, DeleteTodoApiV1TodosTodoIdDeleteMutation, DeleteTodoApiV1TodosTodoIdDeleteMutationResponse, DeleteTodoApiV1TodosTodoIdDeletePathParams } from "./DeleteTodoApiV1TodosTodoIdDelete.ts";
 export type { HTTPValidationError } from "./HTTPValidationError.ts";

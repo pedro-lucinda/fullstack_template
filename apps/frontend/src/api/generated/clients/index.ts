@@ -1,3 +1,4 @@
+export { chatWithAgentApiV1AgentChatPost } from "./chatWithAgentApiV1AgentChatPost.ts";
 export { createTodoApiV1TodosPost } from "./createTodoApiV1TodosPost.ts";
 export { deleteTodoApiV1TodosTodoIdDelete } from "./deleteTodoApiV1TodosTodoIdDelete.ts";
 export { healthHealthGet } from "./healthHealthGet.ts";

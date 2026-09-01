@@ -18,6 +18,12 @@ class Settings(BaseSettings):
 
     backend_cors_origins: list[str] = ["http://localhost:5173"]
 
+    # Example agent (see app/agents/). Defaults work with no API key set, but
+    # calling the /api/v1/agent/chat endpoint for real requires a valid key.
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    openai_temperature: float = 0.0
+
     @property
     def auth0_issuer(self) -> str:
         return f"https://{self.auth0_domain}/"

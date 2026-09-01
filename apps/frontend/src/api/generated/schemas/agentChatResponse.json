@@ -1,0 +1,1 @@
+{"properties":{"reply":{"type":"string","title":"Reply"}},"type":"object","required":["reply"],"title":"AgentChatResponse","x-readme-ref-name":"AgentChatResponse"}
