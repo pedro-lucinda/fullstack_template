@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+    "build": "uv sync",
+    "lint": "uv run ruff check .",
+    "test": "uv run pytest",
+    "typecheck": "echo 'no-op: add mypy/pyright here if desired'",
+    "generate:api": "echo 'no-op: use export:openapi instead'",
+    "export:openapi": "uv run python -m app.scripts.export_openapi"
+  }
+}

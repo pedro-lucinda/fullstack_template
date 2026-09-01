@@ -1,0 +1,17 @@
+{
+  "name": "fullstack-template",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "generate:api": "turbo run generate:api"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.3"
+  }
+}

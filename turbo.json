@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": ["coverage/**"]
+    },
+    "test:e2e": {
+      "outputs": ["playwright-report/**"],
+      "cache": false
+    },
+    "generate:api": {
+      "cache": false,
+      "outputs": ["src/api/generated/**"]
+    },
+    "typecheck": {
+      "outputs": []
+    }
+  }
+}

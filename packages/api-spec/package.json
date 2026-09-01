@@ -1,0 +1,9 @@
+{
+  "name": "@repo/api-spec",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared OpenAPI specification exported from the FastAPI backend. This is the single source of truth consumed by Kubb to generate the frontend API client.",
+  "files": [
+    "openapi.json"
+  ]
+}

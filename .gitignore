@@ -1,0 +1,34 @@
+# Node
+node_modules/
+dist/
+build/
+.pnpm-store/
+*.log
+.turbo/
+*.tsbuildinfo
+
+# Frontend
+apps/frontend/playwright-report/
+apps/frontend/test-results/
+apps/frontend/coverage/
+apps/frontend/.env
+apps/frontend/.env.local
+
+# Backend
+apps/backend/.venv/
+apps/backend/__pycache__/
+apps/backend/**/__pycache__/
+apps/backend/.pytest_cache/
+apps/backend/.ruff_cache/
+apps/backend/htmlcov/
+apps/backend/.env
+apps/backend/.coverage
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env
+.env.local

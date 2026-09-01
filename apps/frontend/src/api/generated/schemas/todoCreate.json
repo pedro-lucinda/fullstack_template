@@ -1,0 +1,1 @@
+{"properties":{"title":{"type":"string","maxLength":200,"minLength":1,"title":"Title"}},"type":"object","required":["title"],"title":"TodoCreate","x-readme-ref-name":"TodoCreate"}
