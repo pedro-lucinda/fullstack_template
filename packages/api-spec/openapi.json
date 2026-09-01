@@ -11,6 +11,7 @@
           "todos"
         ],
         "summary": "List Todos",
+        "description": "List the authenticated user's todos, newest first.",
         "operationId": "list_todos_api_v1_todos_get",
         "responses": {
           "200": {
@@ -39,6 +40,7 @@
           "todos"
         ],
         "summary": "Create Todo",
+        "description": "Create a new todo owned by the authenticated user.",
         "operationId": "create_todo_api_v1_todos_post",
         "requestBody": {
           "content": {
@@ -85,6 +87,7 @@
           "todos"
         ],
         "summary": "Toggle Todo",
+        "description": "Flip a todo's `completed` flag. 404s if not owned by the caller.",
         "operationId": "toggle_todo_api_v1_todos__todo_id__toggle_patch",
         "security": [
           {
@@ -133,6 +136,7 @@
           "todos"
         ],
         "summary": "Delete Todo",
+        "description": "Delete a todo. 404s if not owned by the caller.",
         "operationId": "delete_todo_api_v1_todos__todo_id__delete",
         "security": [
           {

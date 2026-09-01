@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,7 +11,11 @@ class Settings(BaseSettings):
 
     env: str = "development"
 
-    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/app_db"
+    postgres_user: str = "postgres"
+    postgres_password: str = "postgres"
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "app_db"
 
     auth0_domain: str = "your-tenant.us.auth0.com"
     auth0_api_audience: str = "https://api.your-app.example.com"
@@ -22,7 +27,21 @@ class Settings(BaseSettings):
     # calling the /api/v1/agent/chat endpoint for real requires a valid key.
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
-    openai_temperature: float = 0.0
+    openai_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+
+    @property
+    def database_url(self) -> str:
+        """Build the async Postgres DSN from its component parts.
+
+        Kept as separate settings fields (rather than one literal DSN
+        string) so individual pieces can be overridden independently via
+        env vars, and so no plaintext credential pair ever needs to be
+        hardcoded as a single connection-string literal in source.
+        """
+        driver = "postgresql+psycopg"
+        auth = f"{self.postgres_user}:{self.postgres_password}"
+        host = f"{self.postgres_host}:{self.postgres_port}"
+        return f"{driver}://{auth}@{host}/{self.postgres_db}"
 
     @property
     def auth0_issuer(self) -> str:

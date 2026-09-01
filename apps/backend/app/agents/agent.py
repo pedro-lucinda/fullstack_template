@@ -11,6 +11,7 @@ from typing import Any
 
 from langchain.agents import create_agent
 from langchain_core.language_models import BaseChatModel
+from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 
 from app.agents.tools import get_tools
@@ -23,6 +24,11 @@ SYSTEM_PROMPT = (
     "Use tools when they help answer the user's question. Be concise."
 )
 
+# `create_agent` returns a compiled LangGraph state graph, which implements
+# LangChain's `Runnable` interface (`.invoke`/`.ainvoke`). Aliased for
+# readability at call sites instead of using a bare `Any`.
+Agent = Runnable[dict[str, Any], dict[str, Any]]
+
 
 def build_llm() -> BaseChatModel:
     """Build the chat model used by the example agent from app settings."""
@@ -33,7 +39,7 @@ def build_llm() -> BaseChatModel:
     )
 
 
-def build_agent(model: BaseChatModel | None = None) -> Any:
+def build_agent(model: BaseChatModel | None = None) -> Agent:
     """Build the example tool-calling agent.
 
     Accepts an optional `model` so tests/other callers can swap in a fake
@@ -47,7 +53,7 @@ def build_agent(model: BaseChatModel | None = None) -> Any:
 
 
 @lru_cache
-def get_agent() -> Any:
+def get_agent() -> Agent:
     """FastAPI dependency: build (and cache) the default agent for the process.
 
     Overridden in tests via `app.dependency_overrides` with a fake model, the

@@ -11,7 +11,7 @@ settings = get_settings()
 # SQLAlchemy's create_async_engine picks the async psycopg implementation.
 engine = create_async_engine(settings.database_url, echo=settings.env == "development")
 
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+async_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
@@ -19,5 +19,6 @@ class Base(DeclarativeBase):
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
+    """FastAPI dependency that yields a request-scoped async DB session."""
+    async with async_session_factory() as session:
         yield session

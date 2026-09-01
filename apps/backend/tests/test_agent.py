@@ -39,8 +39,6 @@ async def test_agent_chat_calls_tool_then_replies(client: AsyncClient):
     assert response.status_code == 200
     assert response.json() == {"reply": "The answer is 5."}
 
-    del app.dependency_overrides[get_agent]
-
 
 @pytest.mark.asyncio
 async def test_agent_chat_replies_without_tool_call(client: AsyncClient):
@@ -52,8 +50,6 @@ async def test_agent_chat_replies_without_tool_call(client: AsyncClient):
     assert response.status_code == 200
     assert response.json() == {"reply": "Hi there!"}
 
-    del app.dependency_overrides[get_agent]
-
 
 @pytest.mark.asyncio
 async def test_agent_chat_rejects_empty_message(client: AsyncClient):
@@ -63,5 +59,3 @@ async def test_agent_chat_rejects_empty_message(client: AsyncClient):
 
     response = await client.post("/api/v1/agent/chat", json={"message": ""})
     assert response.status_code == 422
-
-    del app.dependency_overrides[get_agent]

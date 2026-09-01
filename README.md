@@ -56,7 +56,7 @@ The backend container runs Alembic migrations automatically on startup.
 ```bash
 cd apps/backend
 uv sync
-cp .env.example .env   # point DATABASE_URL at your local Postgres, add Auth0 config
+cp .env.example .env   # point POSTGRES_* vars at your local Postgres, add Auth0 config
 uv run alembic upgrade head
 uv run uvicorn app.main:app --reload
 ```

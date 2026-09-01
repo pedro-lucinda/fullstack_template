@@ -1,4 +1,4 @@
-from functools import lru_cache
+from typing import Any
 
 import httpx
 from fastapi import Depends, HTTPException, status
@@ -12,6 +12,11 @@ from app.core.config import get_settings
 settings = get_settings()
 bearer_scheme = HTTPBearer(auto_error=False)
 
+# Module-level JWKS cache. Populated lazily on first use and refreshed
+# on-demand if a token references a `kid` we don't recognize (e.g. after
+# Auth0 rotates its signing keys) — see `_get_signing_key`.
+_jwks_cache: dict[str, Any] | None = None
+
 
 class CurrentUser(BaseModel):
     """The authenticated user, derived from a validated Auth0 JWT."""
@@ -21,23 +26,43 @@ class CurrentUser(BaseModel):
     permissions: list[str] = []
 
 
-@lru_cache
-def _get_jwks() -> dict:
-    """Fetch and cache Auth0's JSON Web Key Set used to verify token signatures."""
-    response = httpx.get(settings.auth0_jwks_url, timeout=5.0)
-    response.raise_for_status()
-    return response.json()
+async def _fetch_jwks() -> dict[str, Any]:
+    """Fetch Auth0's JSON Web Key Set (JWKS) used to verify token signatures."""
+    async with httpx.AsyncClient(timeout=5.0) as http_client:
+        response = await http_client.get(settings.auth0_jwks_url)
+        response.raise_for_status()
+        return response.json()
 
 
-def _get_signing_key(token: str) -> dict:
-    unverified_header = jwt.get_unverified_header(token)
-    for key in _get_jwks().get("keys", []):
-        if key.get("kid") == unverified_header.get("kid"):
-            return key
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Unable to find an appropriate signing key",
-    )
+def _find_key(jwks: dict[str, Any], kid: str | None) -> dict[str, Any] | None:
+    return next((key for key in jwks.get("keys", []) if key.get("kid") == kid), None)
+
+
+async def _get_signing_key(token: str) -> dict[str, Any]:
+    """Resolve the JWKS signing key matching the token's `kid` header.
+
+    Uses a process-wide cache to avoid fetching the JWKS on every request, but
+    transparently refreshes it once if the `kid` isn't found — this keeps
+    verification working across Auth0 key rotations without a restart.
+    """
+    global _jwks_cache
+
+    kid = jwt.get_unverified_header(token).get("kid")
+
+    if _jwks_cache is None:
+        _jwks_cache = await _fetch_jwks()
+
+    key = _find_key(_jwks_cache, kid)
+    if key is None:
+        _jwks_cache = await _fetch_jwks()
+        key = _find_key(_jwks_cache, kid)
+
+    if key is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unable to find an appropriate signing key",
+        )
+    return key
 
 
 async def get_current_user(
@@ -57,7 +82,7 @@ async def get_current_user(
 
     token = credentials.credentials
     try:
-        signing_key = _get_signing_key(token)
+        signing_key = await _get_signing_key(token)
         payload = jwt.decode(
             token,
             signing_key,
