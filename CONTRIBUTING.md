@@ -68,7 +68,7 @@ A failing check blocks the commit. If hooks aren't active (e.g. you skipped
 `sgconfig.yml` + `.ast-grep/rules/*.yml` codify a couple of anti-patterns
 previously found (and fixed) in this codebase — see `.ast-grep/README.md` for
 details. Run `pnpm exec ast-grep scan` locally; it also runs in CI
-(`static-analysis` job).
+(`.github/workflows/static-analysis.yml`).
 
 ## Before opening a PR
 

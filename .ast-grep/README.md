@@ -10,7 +10,7 @@ pnpm exec ast-grep scan          # scan the whole repo
 pnpm exec ast-grep scan <path>   # scan a subset
 ```
 
-(Also wired into CI — see `.github/workflows/ci.yml`.)
+(Also wired into CI — see `.github/workflows/static-analysis.yml`.)
 
 ## Rules
 

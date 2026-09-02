@@ -86,8 +86,11 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
 
 ## Quality gates
 
-- Git hooks (see `lefthook.yml` if present) and CI (`.github/workflows/ci.yml`) run ruff/eslint/
-  tsc/pytest plus ast-grep rules and OpenAPI/Kubb drift checks — see those files for the
+- Git hooks (see `lefthook.yml` if present) and CI run ruff/eslint/tsc/pytest plus ast-grep
+  rules and OpenAPI/Kubb drift checks. CI is split by app so a backend-only change doesn't
+  trigger frontend CI and vice versa: `.github/workflows/backend-ci.yml` (ruff, pytest, OpenAPI
+  spec drift), `.github/workflows/frontend-ci.yml` (eslint, tsc, jest, build, Kubb client
+  drift), `.github/workflows/static-analysis.yml` (ast-grep, repo-wide). See those files for the
   authoritative, up-to-date list rather than duplicating it here.
 
 <!-- gitnexus:start -->
