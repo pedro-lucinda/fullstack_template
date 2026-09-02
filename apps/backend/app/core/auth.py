@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import httpx
@@ -8,14 +9,18 @@ from jose.exceptions import JOSEError
 from pydantic import BaseModel
 
 from app.core.config import get_settings
+from app.core.redis import get_redis
 
 settings = get_settings()
 bearer_scheme = HTTPBearer(auto_error=False)
 
-# Module-level JWKS cache. Populated lazily on first use and refreshed
-# on-demand if a token references a `kid` we don't recognize (e.g. after
-# Auth0 rotates its signing keys) — see `_get_signing_key`.
-_jwks_cache: dict[str, Any] | None = None
+# JWKS cache key/TTL. Cached in Redis (rather than an in-memory dict) so the
+# cache is shared across uvicorn worker processes and expires on its own —
+# see `_get_signing_key`, which also refreshes on-demand if a token
+# references a `kid` we don't recognize (e.g. right after Auth0 rotates its
+# signing keys, before the TTL would otherwise have expired it).
+JWKS_CACHE_KEY = "auth0:jwks"
+JWKS_CACHE_TTL_SECONDS = 3600
 
 
 class CurrentUser(BaseModel):
@@ -38,24 +43,34 @@ def _find_key(jwks: dict[str, Any], kid: str | None) -> dict[str, Any] | None:
     return next((key for key in jwks.get("keys", []) if key.get("kid") == kid), None)
 
 
+async def _get_cached_jwks() -> dict[str, Any] | None:
+    raw = await get_redis().get(JWKS_CACHE_KEY)
+    return json.loads(raw) if raw is not None else None
+
+
+async def _cache_jwks(jwks: dict[str, Any]) -> None:
+    await get_redis().set(JWKS_CACHE_KEY, json.dumps(jwks), ex=JWKS_CACHE_TTL_SECONDS)
+
+
 async def _get_signing_key(token: str) -> dict[str, Any]:
     """Resolve the JWKS signing key matching the token's `kid` header.
 
-    Uses a process-wide cache to avoid fetching the JWKS on every request, but
-    transparently refreshes it once if the `kid` isn't found — this keeps
+    Uses a Redis-backed cache to avoid fetching the JWKS on every request,
+    but transparently refreshes it once if the `kid` isn't found — this keeps
     verification working across Auth0 key rotations without a restart.
     """
-    global _jwks_cache
-
     kid = jwt.get_unverified_header(token).get("kid")
 
-    if _jwks_cache is None:
-        _jwks_cache = await _fetch_jwks()
+    jwks = await _get_cached_jwks()
+    if jwks is None:
+        jwks = await _fetch_jwks()
+        await _cache_jwks(jwks)
 
-    key = _find_key(_jwks_cache, kid)
+    key = _find_key(jwks, kid)
     if key is None:
-        _jwks_cache = await _fetch_jwks()
-        key = _find_key(_jwks_cache, kid)
+        jwks = await _fetch_jwks()
+        await _cache_jwks(jwks)
+        key = _find_key(jwks, kid)
 
     if key is None:
         raise HTTPException(

@@ -18,6 +18,8 @@ workflow inspired by AWS's agentic SDLC.
 **Backend** (`apps/backend`)
 - FastAPI + SQLAlchemy (async) + Alembic migrations
 - PostgreSQL
+- Redis — caches the Auth0 JWKS lookup and the todos list endpoint (cache-aside,
+  invalidated on writes); see `app/core/redis.py`
 - Auth0 JWT verification (JWKS-based)
 - LangChain example agent (`app/agents/`) — a tool-calling agent exposed at
   `POST /api/v1/agent/chat`, see `specs/agent-chat/`
@@ -47,6 +49,7 @@ docker compose up --build
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000 (docs at /docs)
 - Postgres: localhost:5432
+- Redis: localhost:6379
 
 The backend container runs Alembic migrations automatically on startup.
 
@@ -56,10 +59,14 @@ The backend container runs Alembic migrations automatically on startup.
 ```bash
 cd apps/backend
 uv sync
-cp .env.example .env   # point POSTGRES_* vars at your local Postgres, add Auth0 config
+cp .env.example .env   # point POSTGRES_*/REDIS_* vars at your local Postgres/Redis, add Auth0 config
 uv run alembic upgrade head
 uv run uvicorn app.main:app --reload
 ```
+
+Redis is required — the app fails at request time (not at startup) if it can't
+reach it, since the client connects lazily. Run one locally with e.g.
+`docker run --rm -p 6379:6379 redis:7-alpine`.
 
 **Frontend:**
 ```bash
@@ -108,5 +115,5 @@ packages/
 specs/
   _template/        Copy this to start a new feature spec
   todos/            Worked example spec for the included sample feature
-docker-compose.yml  Dev-only orchestration (Postgres + backend + frontend)
+docker-compose.yml  Dev-only orchestration (Postgres + Redis + backend + frontend)
 ```

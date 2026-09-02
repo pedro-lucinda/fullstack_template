@@ -56,6 +56,20 @@ async def test_toggle_nonexistent_todo_returns_404(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_list_todos_cache_is_invalidated_by_writes(client: AsyncClient):
+    """The list endpoint caches its result in Redis; every write must bust it,
+    or a client would keep seeing a stale list until the TTL expires."""
+    await client.post("/api/v1/todos", json={"title": "First"})
+    first_list = await client.get("/api/v1/todos")  # populates the cache
+    assert len(first_list.json()) == 1
+
+    await client.post("/api/v1/todos", json={"title": "Second"})
+    second_list = await client.get("/api/v1/todos")
+    titles = {todo["title"] for todo in second_list.json()}
+    assert titles == {"First", "Second"}
+
+
+@pytest.mark.asyncio
 async def test_ownership_isolation(client: AsyncClient, other_user_override):
     create_resp = await client.post("/api/v1/todos", json={"title": "User1 secret"})
     todo_id = create_resp.json()["id"]

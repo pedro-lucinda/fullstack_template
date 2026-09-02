@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
     postgres_db: str = "app_db"
 
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+
     auth0_domain: str = "your-tenant.us.auth0.com"
     auth0_api_audience: str = "https://api.your-app.example.com"
     auth0_algorithms: str = "RS256"
@@ -42,6 +46,11 @@ class Settings(BaseSettings):
         auth = f"{self.postgres_user}:{self.postgres_password}"
         host = f"{self.postgres_host}:{self.postgres_port}"
         return f"{driver}://{auth}@{host}/{self.postgres_db}"
+
+    @property
+    def redis_url(self) -> str:
+        """Build the Redis DSN from its component parts (see `database_url`)."""
+        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
     @property
     def auth0_issuer(self) -> str:

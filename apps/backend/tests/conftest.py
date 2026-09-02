@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 
+import fakeredis.aioredis
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.core.auth import CurrentUser, get_current_user
 from app.core.db import Base, get_db
+from app.core.redis import get_redis
 from app.main import app
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -37,8 +39,13 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     async def _override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
 
+    # A fresh fake Redis per test, so cache state (e.g. the todos list cache)
+    # never leaks between tests.
+    fake_redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
+
     app.dependency_overrides[get_db] = _override_get_db
     app.dependency_overrides[get_current_user] = _override_current_user("user-1")
+    app.dependency_overrides[get_redis] = lambda: fake_redis
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:

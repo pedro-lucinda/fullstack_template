@@ -7,8 +7,8 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
 
 ## Layout
 
-- `apps/backend` — FastAPI + SQLAlchemy (async) + Alembic + Postgres + Auth0 JWT auth, managed
-  with `uv`. LangChain example agent under `app/agents/`.
+- `apps/backend` — FastAPI + SQLAlchemy (async) + Alembic + Postgres + Redis + Auth0 JWT auth,
+  managed with `uv`. LangChain example agent under `app/agents/`.
 - `apps/frontend` — Vite + React + TypeScript + Tailwind + shadcn-style components (hand-built
   under `src/components/ui/`) + Zustand (state only — **no React Context** for app state) +
   Auth0 React SDK, managed with `pnpm`.
@@ -43,6 +43,10 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
 - `ruff` config (`apps/backend/pyproject.toml`) ignores `B008` (FastAPI's idiomatic
   `Depends()` default triggers a bugbear false positive) and excludes `alembic/versions`/
   `alembic/env.py` from linting.
+- Redis (`app/core/redis.py`, `get_redis`) is used for the Auth0 JWKS cache (`app/core/auth.py`)
+  and as a cache-aside example on `GET /api/v1/todos` (invalidated on every write in
+  `app/api/routes/todos.py`). Tests override `get_redis` with `fakeredis` — see
+  `tests/conftest.py` — so they never need a live Redis instance.
 - Verified commands: `cd apps/backend && uv run ruff check . && uv run pytest`.
 
 ## Frontend conventions

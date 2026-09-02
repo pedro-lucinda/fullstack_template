@@ -9,6 +9,7 @@ dependencies = [
     "sqlalchemy>=2.0.35",
     "alembic>=1.13.2",
     "psycopg[binary]>=3.2.1",
+    "redis>=5.0.8",
     "pydantic>=2.9.0",
     "pydantic-settings>=2.5.2",
     "python-jose[cryptography]>=3.3.0",
@@ -25,6 +26,7 @@ dev = [
     "pytest-cov>=5.0.0",
     "ruff>=0.6.8",
     "aiosqlite>=0.20.0",
+    "fakeredis>=2.20.0",
 ]
 
 [tool.ruff]
