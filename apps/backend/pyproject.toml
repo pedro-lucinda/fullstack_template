@@ -35,6 +35,7 @@ dev = [
     "ruff>=0.6.8",
     "aiosqlite>=0.20.0",
     "fakeredis>=2.20.0",
+    "mypy>=2.3.1",
 ]
 
 [tool.ruff]
@@ -48,6 +49,20 @@ ignore = ["B008"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.mypy]
+# Permissive starting point: catches genuine bugs (wrong arg types, bad
+# Optional handling, unreachable code) without requiring every function in
+# the codebase to be fully annotated up front. Tighten incrementally (e.g.
+# `disallow_untyped_defs`) as coverage improves.
+python_version = "3.12"
+exclude = ["alembic/versions", "alembic/env.py"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+no_implicit_optional = true
 
 [build-system]
 requires = ["hatchling"]
