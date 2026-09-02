@@ -77,7 +77,7 @@ export const client: Client = async <TData, _TError = unknown, TVariables = unkn
     signal: config.signal,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { Authorization: "Bearer " + token } : {}),
       ...headersToRecord(config.headers),
     },
   });
