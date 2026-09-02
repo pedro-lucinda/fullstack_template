@@ -30,6 +30,7 @@ async def request_context_middleware(
 ) -> Response:
     """ASGI middleware: assign/propagate a request ID and log request start/end."""
     request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid.uuid4())
+    request.state.request_id = request_id
     start = time.perf_counter()
 
     structlog.contextvars.clear_contextvars()

@@ -49,6 +49,13 @@ class Settings(BaseSettings):
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = Field(default=0.0, ge=0.0, le=1.0)
 
+    # Rate limiting (slowapi, Redis-backed via `redis_url`). Disabled entirely
+    # in tests (see `tests/conftest.py`) so test runs never depend on shared
+    # rate-limit state between test functions.
+    rate_limit_enabled: bool = True
+    rate_limit_default: str = "100/minute"
+    rate_limit_agent_chat: str = "10/minute"
+
     @property
     def database_url(self) -> str:
         """Build the async Postgres DSN from its component parts.

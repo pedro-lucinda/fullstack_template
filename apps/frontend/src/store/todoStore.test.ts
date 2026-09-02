@@ -29,7 +29,7 @@ beforeEach(() => {
 
 describe("useTodoStore", () => {
   it("fetchTodos populates todos on success", async () => {
-    mockedList.mockResolvedValue([sampleTodo]);
+    mockedList.mockResolvedValue({ items: [sampleTodo], total: 1, limit: 20, offset: 0 });
 
     await useTodoStore.getState().fetchTodos();
 

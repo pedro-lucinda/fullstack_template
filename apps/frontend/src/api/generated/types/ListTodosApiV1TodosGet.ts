@@ -3,17 +3,41 @@
 * Do not edit manually.
 */
 
-import type { TodoRead } from "./TodoRead.ts";
+import type { HTTPValidationError } from "./HTTPValidationError.ts";
+import type { TodoPage } from "./TodoPage.ts";
+
+export type ListTodosApiV1TodosGetQueryParams = {
+    /**
+     * @minLength 1
+     * @maxLength 100
+     * @default 20
+     * @type integer | undefined
+    */
+    limit?: number;
+    /**
+     * @minLength 0
+     * @default 0
+     * @type integer | undefined
+    */
+    offset?: number;
+};
 
 /**
- * Response List Todos Api V1 Todos Get
+ * TodoPage
  * @description Successful Response
 */
-export type ListTodosApiV1TodosGet200 = TodoRead[];
+export type ListTodosApiV1TodosGet200 = TodoPage;
+
+/**
+ * HTTPValidationError
+ * @description Validation Error
+*/
+export type ListTodosApiV1TodosGet422 = HTTPValidationError;
 
 export type ListTodosApiV1TodosGetQueryResponse = ListTodosApiV1TodosGet200;
 
 export type ListTodosApiV1TodosGetQuery = {
     Response: ListTodosApiV1TodosGet200;
-    Errors: any;
+    QueryParams: ListTodosApiV1TodosGetQueryParams;
+    Errors: ListTodosApiV1TodosGet422;
 };

@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ from app.core.db import get_db
 from app.core.redis import get_redis
 from app.modules.todos import service
 from app.modules.todos.models import Todo
-from app.modules.todos.schemas import TodoCreate, TodoRead
+from app.modules.todos.schemas import TodoCreate, TodoPage, TodoRead
 
 router = APIRouter(prefix=f"{API_V1_PREFIX}/todos", tags=["todos"])
 
@@ -33,14 +33,16 @@ async def create_todo(
     return await service.create_todo(db, redis, user.sub, payload.title)
 
 
-@router.get("", response_model=list[TodoRead])
+@router.get("", response_model=TodoPage)
 async def list_todos(
+    limit: int = Query(service.DEFAULT_LIMIT, ge=1, le=service.MAX_LIMIT),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
     redis: Redis = Depends(get_redis),
-) -> list[Todo] | list[dict]:
-    """List the authenticated user's todos, newest first."""
-    return await service.list_todos(db, redis, user.sub)
+) -> TodoPage:
+    """List the authenticated user's todos, newest first, paginated."""
+    return await service.list_todos(db, redis, user.sub, limit, offset)
 
 
 @router.patch("/{todo_id}/toggle", response_model=TodoRead)

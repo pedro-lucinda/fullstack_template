@@ -4,7 +4,7 @@
 */
 
 import fetch from "@/api/client";
-import type { ListTodosApiV1TodosGetQueryResponse } from "../types/ListTodosApiV1TodosGet.ts";
+import type { ListTodosApiV1TodosGetQueryResponse, ListTodosApiV1TodosGetQueryParams, ListTodosApiV1TodosGet422 } from "../types/ListTodosApiV1TodosGet.ts";
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/api/client";
 
 function getListTodosApiV1TodosGetUrl() {
@@ -13,15 +13,15 @@ function getListTodosApiV1TodosGetUrl() {
 }
 
 /**
- * @description List the authenticated user's todos, newest first.
+ * @description List the authenticated user's todos, newest first, paginated.
  * @summary List Todos
  * {@link /api/v1/todos}
  */
-export async function listTodosApiV1TodosGet(config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function listTodosApiV1TodosGet(params?: ListTodosApiV1TodosGetQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
 
 
-  const res = await request<ListTodosApiV1TodosGetQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getListTodosApiV1TodosGetUrl().url.toString(), ... requestConfig })
+  const res = await request<ListTodosApiV1TodosGetQueryResponse, ResponseErrorConfig<ListTodosApiV1TodosGet422>, unknown>({ method : "GET", url : getListTodosApiV1TodosGetUrl().url.toString(), params, ... requestConfig })
   return res.data
 }

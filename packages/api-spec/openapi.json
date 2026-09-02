@@ -6,35 +6,6 @@
   },
   "paths": {
     "/api/v1/todos": {
-      "get": {
-        "tags": [
-          "todos"
-        ],
-        "summary": "List Todos",
-        "description": "List the authenticated user's todos, newest first.",
-        "operationId": "list_todos_api_v1_todos_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TodoRead"
-                  },
-                  "type": "array",
-                  "title": "Response List Todos Api V1 Todos Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
       "post": {
         "tags": [
           "todos"
@@ -42,15 +13,20 @@
         "summary": "Create Todo",
         "description": "Create a new todo owned by the authenticated user.",
         "operationId": "create_todo_api_v1_todos_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/TodoCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -73,12 +49,67 @@
               }
             }
           }
-        },
+        }
+      },
+      "get": {
+        "tags": [
+          "todos"
+        ],
+        "summary": "List Todos",
+        "description": "List the authenticated user's todos, newest first, paginated.",
+        "operationId": "list_todos_api_v1_todos_get",
         "security": [
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/todos/{todo_id}/toggle": {
@@ -323,6 +354,38 @@
           "title"
         ],
         "title": "TodoCreate"
+      },
+      "TodoPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TodoRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "TodoPage",
+        "description": "A page of todos, plus enough metadata for a client to paginate further."
       },
       "TodoRead": {
         "properties": {

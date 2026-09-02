@@ -15,3 +15,12 @@ class TodoRead(BaseModel):
     title: str
     completed: bool
     created_at: datetime
+
+
+class TodoPage(BaseModel):
+    """A page of todos, plus enough metadata for a client to paginate further."""
+
+    items: list[TodoRead]
+    total: int
+    limit: int
+    offset: int

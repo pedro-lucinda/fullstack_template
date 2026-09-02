@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.core.auth import CurrentUser, get_current_user
+from app.core.config import get_settings
 from app.core.constants import API_V1_PREFIX
+from app.core.rate_limit import limiter
 from app.modules.agent.schemas import AgentChatRequest, AgentChatResponse
 from app.modules.agent.service import Agent, get_agent
 
@@ -9,7 +11,9 @@ router = APIRouter(prefix=f"{API_V1_PREFIX}/agent", tags=["agent"])
 
 
 @router.post("/chat", response_model=AgentChatResponse)
+@limiter.limit(lambda: get_settings().rate_limit_agent_chat)
 async def chat_with_agent(
+    request: Request,
     payload: AgentChatRequest,
     agent: Agent = Depends(get_agent),
     user: CurrentUser = Depends(get_current_user),

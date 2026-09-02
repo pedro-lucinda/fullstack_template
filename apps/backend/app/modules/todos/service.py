@@ -8,17 +8,24 @@ import json
 import uuid
 
 from redis.asyncio import Redis
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.todos.models import Todo
-from app.modules.todos.schemas import TodoRead
+from app.modules.todos.schemas import TodoPage, TodoRead
 
 # Cache-aside example: list_todos is read far more often than todos are
 # written, so its result is cached per-user for a short TTL and explicitly
 # invalidated on every write (create/toggle/delete) below. The short TTL is a
 # safety net in case an invalidation is ever missed; it isn't load-bearing.
 TODOS_CACHE_TTL_SECONDS = 30
+
+# Pagination defaults. Only the *default* first page is cached (see
+# `list_todos`) — caching every possible limit/offset combination isn't worth
+# the complexity for a cache whose whole point is smoothing out repeated
+# "list my todos" calls on the default view.
+DEFAULT_LIMIT = 20
+MAX_LIMIT = 100
 
 
 def _cache_key(owner_id: str) -> str:
@@ -35,28 +42,50 @@ async def create_todo(db: AsyncSession, redis: Redis, owner_id: str, title: str)
     return todo
 
 
-async def list_todos(db: AsyncSession, redis: Redis, owner_id: str) -> list[Todo] | list[dict]:
-    """List `owner_id`'s todos, newest first.
+async def list_todos(
+    db: AsyncSession,
+    redis: Redis,
+    owner_id: str,
+    limit: int = DEFAULT_LIMIT,
+    offset: int = 0,
+) -> TodoPage:
+    """List `owner_id`'s todos, newest first, `limit`-at-a-time starting at `offset`.
 
-    Cached per-user in Redis for `TODOS_CACHE_TTL_SECONDS`; see the cache-aside
-    note above the module-level constant. Returns plain dicts on a cache hit
-    (already-serialized `TodoRead` shape) or ORM instances on a miss — FastAPI's
-    `response_model` handles both.
+    Only the default first page (`limit=DEFAULT_LIMIT, offset=0` — what the
+    frontend requests on initial load) is cached in Redis for
+    `TODOS_CACHE_TTL_SECONDS`; see the cache-aside note above. Any other
+    page goes straight to Postgres, since caching every limit/offset
+    combination isn't worth it for what's meant to smooth out the common case.
     """
+    use_cache = limit == DEFAULT_LIMIT and offset == 0
     cache_key = _cache_key(owner_id)
-    cached = await redis.get(cache_key)
-    if cached is not None:
-        return json.loads(cached)
 
+    if use_cache:
+        cached = await redis.get(cache_key)
+        if cached is not None:
+            return TodoPage.model_validate(json.loads(cached))
+
+    total = await db.scalar(select(func.count()).select_from(Todo).where(Todo.owner_id == owner_id))
     result = await db.execute(
-        select(Todo).where(Todo.owner_id == owner_id).order_by(Todo.created_at.desc())
+        select(Todo)
+        .where(Todo.owner_id == owner_id)
+        .order_by(Todo.created_at.desc())
+        .limit(limit)
+        .offset(offset)
     )
     todos = list(result.scalars().all())
 
-    serialized = [TodoRead.model_validate(todo).model_dump(mode="json") for todo in todos]
-    await redis.set(cache_key, json.dumps(serialized), ex=TODOS_CACHE_TTL_SECONDS)
+    page = TodoPage(
+        items=[TodoRead.model_validate(todo) for todo in todos],
+        total=total or 0,
+        limit=limit,
+        offset=offset,
+    )
 
-    return todos
+    if use_cache:
+        await redis.set(cache_key, page.model_dump_json(), ex=TODOS_CACHE_TTL_SECONDS)
+
+    return page
 
 
 async def get_owned_todo(db: AsyncSession, todo_id: uuid.UUID, owner_id: str) -> Todo | None:

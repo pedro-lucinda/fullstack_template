@@ -1,4 +1,12 @@
+import os
 from collections.abc import AsyncGenerator
+
+# Rate limiting is Redis-backed and shared across requests within its TTL
+# window; tests fire many requests in quick succession against the same key
+# (remote address), so it must be disabled here — set *before* importing
+# `app.main` (and anything it imports), since `app.core.rate_limit` builds
+# its `Limiter` once at import time from `get_settings()`.
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
 import fakeredis.aioredis
 import pytest

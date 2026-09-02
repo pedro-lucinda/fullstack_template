@@ -26,8 +26,8 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   fetchTodos: async () => {
     set({ isLoading: true, error: null });
     try {
-      const todos = await listTodosApiV1TodosGet();
-      set({ todos, isLoading: false });
+      const { items } = await listTodosApiV1TodosGet();
+      set({ todos: items, isLoading: false });
     } catch (err) {
       set({ error: (err as Error).message, isLoading: false });
     }

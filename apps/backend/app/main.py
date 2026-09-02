@@ -2,13 +2,16 @@ from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from redis.asyncio import Redis
+from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.db import get_db
+from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import request_context_middleware
+from app.core.rate_limit import limiter
 from app.core.redis import get_redis
 from app.core.sentry import setup_sentry
 from app.core.telemetry import setup_tracing
@@ -26,6 +29,9 @@ app = FastAPI(title="Fullstack Template API", version="0.1.0")
 
 setup_tracing(app)
 
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.backend_cors_origins,
@@ -34,6 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.middleware("http")(request_context_middleware)
+register_exception_handlers(app)
 
 app.include_router(todos_router)
 app.include_router(agent_router)
