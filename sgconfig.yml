@@ -1,0 +1,5 @@
+# ast-grep config: https://ast-grep.github.io/reference/sgconfig.html
+# Run `sg scan` (or `pnpm exec ast-grep scan`) from the repo root to lint
+# against the rules below.
+ruleDirs:
+  - .ast-grep/rules

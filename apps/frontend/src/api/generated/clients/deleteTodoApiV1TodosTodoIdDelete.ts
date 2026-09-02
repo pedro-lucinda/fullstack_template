@@ -13,6 +13,7 @@ function getDeleteTodoApiV1TodosTodoIdDeleteUrl(todo_id: DeleteTodoApiV1TodosTod
 }
 
 /**
+ * @description Delete a todo. 404s if not owned by the caller.
  * @summary Delete Todo
  * {@link /api/v1/todos/:todo_id}
  */

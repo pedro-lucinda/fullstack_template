@@ -19,7 +19,9 @@ async def chat_with_agent(
     final_message = result["messages"][-1]
     # `content` is typed as `str | list` on LangChain messages (list is used for
     # multimodal content blocks); the example agent only ever produces text.
-    reply = final_message.content if isinstance(final_message.content, str) else str(
+    reply = (
         final_message.content
+        if isinstance(final_message.content, str)
+        else str(final_message.content)
     )
     return AgentChatResponse(reply=reply)

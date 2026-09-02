@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "gitnexus": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "gitnexus", "mcp"],
+      "tools": ["*"]
+    }
+  }
+}

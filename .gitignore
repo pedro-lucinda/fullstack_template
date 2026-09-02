@@ -32,3 +32,8 @@ apps/backend/.coverage
 # Env
 .env
 .env.local
+.gitnexus
+
+# Repomix (repo digest packing, generated on demand via `pnpm context:pack`)
+.repomix-output.md
+repomix-output.*

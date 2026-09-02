@@ -37,10 +37,37 @@ Only start implementing once requirements and design are settled. See
 - Keep `packages/api-spec/openapi.json` committed and up to date — it's the
   reviewable diff of your API contract changes.
 
+## Git hooks
+
+`pnpm install` runs a `prepare` script that installs [lefthook](https://lefthook.dev/)
+git hooks (`lefthook.yml` at repo root). We use lefthook rather than
+`simple-git-hooks` + `lint-staged` because it's a single Go binary that
+already understands multi-language monorepos, so it can shell out to
+`uv run ruff` for staged Python files and `pnpm --filter frontend lint`/
+`typecheck` for staged TS/JS files without extra JS glue.
+
+On `pre-commit` it runs, scoped to staged files where the tool supports it:
+
+- Backend (when `apps/backend/**/*.py` files are staged): `uv run ruff check`
+  and `uv run ruff format --check`
+- Frontend (when `apps/frontend/**/*.{ts,tsx,js,jsx}` files are staged):
+  `pnpm --filter frontend lint` and `pnpm --filter frontend typecheck`
+
+A failing check blocks the commit. If hooks aren't active (e.g. you skipped
+`pnpm install`), run `pnpm exec lefthook install` manually.
+
+## Static analysis with ast-grep
+
+`sgconfig.yml` + `.ast-grep/rules/*.yml` codify a couple of anti-patterns
+previously found (and fixed) in this codebase — see `.ast-grep/README.md` for
+details. Run `pnpm exec ast-grep scan` locally; it also runs in CI
+(`static-analysis` job).
+
 ## Before opening a PR
 
 ```bash
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm exec ast-grep scan
 ```

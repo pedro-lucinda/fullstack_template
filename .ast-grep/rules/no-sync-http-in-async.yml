@@ -1,0 +1,32 @@
+id: no-sync-http-in-async
+language: python
+severity: error
+message: >-
+  Blocking synchronous httpx/requests call inside an `async def` function.
+  This blocks the event loop under load. Use `httpx.AsyncClient` (with
+  `await client.get(...)`) instead. This is the exact bug that used to exist
+  in apps/backend/app/core/auth.py's JWT-verification path.
+note: >-
+  See apps/backend/app/core/auth.py `_fetch_jwks` for the fixed pattern using
+  `async with httpx.AsyncClient(...) as http_client: await http_client.get(...)`.
+rule:
+  pattern: |
+    async def $NAME($$$PARAMS):
+        $$$BODY
+  has:
+    stopBy: end
+    any:
+      - pattern: httpx.get($$$)
+      - pattern: httpx.post($$$)
+      - pattern: httpx.put($$$)
+      - pattern: httpx.delete($$$)
+      - pattern: httpx.patch($$$)
+      - pattern: httpx.head($$$)
+      - pattern: httpx.request($$$)
+      - pattern: requests.get($$$)
+      - pattern: requests.post($$$)
+      - pattern: requests.put($$$)
+      - pattern: requests.delete($$$)
+      - pattern: requests.patch($$$)
+      - pattern: requests.head($$$)
+      - pattern: requests.request($$$)

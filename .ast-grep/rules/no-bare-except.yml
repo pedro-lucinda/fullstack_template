@@ -1,0 +1,11 @@
+id: no-bare-except
+language: python
+severity: error
+message: >-
+  Bare `except:` clause catches everything, including SystemExit and
+  KeyboardInterrupt, and hides programming errors. Specify an exception type,
+  e.g. `except Exception:` at minimum.
+rule:
+  kind: except_clause
+  regex: "^except\\s*:"
+

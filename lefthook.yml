@@ -1,0 +1,32 @@
+# Lefthook config: https://lefthook.dev/configuration/
+#
+# Why lefthook (over simple-git-hooks + lint-staged): this repo mixes a
+# pnpm/turbo JS workspace with a `uv`-managed Python backend. Lefthook is a
+# single Go binary (installed here as a thin npm wrapper we already have via
+# Node), it understands multiple languages natively, and it can scope jobs to
+# staged files per-glob without needing extra JS glue to shell out to `uv run
+# ruff` for Python files. simple-git-hooks + lint-staged would work but would
+# need a custom lint-staged function just to invoke `uv run ruff`, which
+# lefthook does out of the box via `glob:`.
+pre-commit:
+  parallel: true
+  jobs:
+    - name: backend ruff check
+      root: apps/backend
+      glob: "apps/backend/**/*.py"
+      run: uv run ruff check {staged_files}
+
+    - name: backend ruff format
+      root: apps/backend
+      glob: "apps/backend/**/*.py"
+      run: uv run ruff format --check {staged_files}
+
+    - name: frontend eslint
+      root: apps/frontend
+      glob: "apps/frontend/**/*.{ts,tsx,js,jsx}"
+      run: pnpm --filter frontend lint
+
+    - name: frontend typecheck
+      root: apps/frontend
+      glob: "apps/frontend/**/*.{ts,tsx,js,jsx}"
+      run: pnpm --filter frontend typecheck

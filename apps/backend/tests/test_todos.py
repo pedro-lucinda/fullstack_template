@@ -51,9 +51,7 @@ async def test_delete_todo(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_toggle_nonexistent_todo_returns_404(client: AsyncClient):
-    response = await client.patch(
-        "/api/v1/todos/00000000-0000-0000-0000-000000000000/toggle"
-    )
+    response = await client.patch("/api/v1/todos/00000000-0000-0000-0000-000000000000/toggle")
     assert response.status_code == 404
 
 

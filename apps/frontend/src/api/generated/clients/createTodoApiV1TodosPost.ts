@@ -13,6 +13,7 @@ function getCreateTodoApiV1TodosPostUrl() {
 }
 
 /**
+ * @description Create a new todo owned by the authenticated user.
  * @summary Create Todo
  * {@link /api/v1/todos}
  */

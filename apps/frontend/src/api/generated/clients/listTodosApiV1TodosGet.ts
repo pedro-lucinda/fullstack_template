@@ -13,6 +13,7 @@ function getListTodosApiV1TodosGetUrl() {
 }
 
 /**
+ * @description List the authenticated user's todos, newest first.
  * @summary List Todos
  * {@link /api/v1/todos}
  */

@@ -13,6 +13,7 @@ function getToggleTodoApiV1TodosTodoIdTogglePatchUrl(todo_id: ToggleTodoApiV1Tod
 }
 
 /**
+ * @description Flip a todo's `completed` flag. 404s if not owned by the caller.
  * @summary Toggle Todo
  * {@link /api/v1/todos/:todo_id/toggle}
  */

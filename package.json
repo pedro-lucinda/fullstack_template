@@ -3,15 +3,23 @@
   "private": true,
   "packageManager": "pnpm@9.12.0",
   "scripts": {
+    "prepare": "lefthook install",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
     "typecheck": "turbo run typecheck",
-    "generate:api": "turbo run generate:api"
+    "generate:api": "turbo run generate:api",
+    "check:spec-drift": "cd apps/backend && uv run python -m app.scripts.export_openapi && cd ../.. && git diff --exit-code -- packages/api-spec/openapi.json",
+    "check:client-drift": "pnpm --filter frontend generate:api && git diff --exit-code -- apps/frontend/src/api/generated",
+    "check:drift": "pnpm check:spec-drift && pnpm check:client-drift",
+    "context:pack": "repomix --ignore \"apps/frontend/src/api/generated/**,apps/backend/alembic/versions/**,pnpm-lock.yaml,.turbo/**,dist/**,build/**,node_modules/**,.venv/**,apps/frontend/.kubb/**\" -o .repomix-output.md --style markdown"
   },
   "devDependencies": {
+    "@ast-grep/cli": "^0.45.3",
+    "lefthook": "^2.1.12",
+    "repomix": "^1.14.0",
     "turbo": "^2.1.3"
   }
 }
