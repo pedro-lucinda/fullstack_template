@@ -56,6 +56,13 @@ On `pre-commit` it runs, scoped to staged files where the tool supports it:
 A failing check blocks the commit. If hooks aren't active (e.g. you skipped
 `pnpm install`), run `pnpm exec lefthook install` manually.
 
+> Lefthook shells out to `uv` and `pnpm` directly (not via `pnpm exec`), so
+> make sure both are on the `PATH` used by your Git client when committing.
+> This is usually fine from a terminal where you already run `uv`/`pnpm`, but
+> GUI Git clients sometimes launch hooks with a minimal PATH — if a hook
+> fails with "command not found", add `uv`/`pnpm` to that client's PATH
+> config or commit from a terminal instead.
+
 ## Static analysis with ast-grep
 
 `sgconfig.yml` + `.ast-grep/rules/*.yml` codify a couple of anti-patterns
