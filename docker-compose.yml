@@ -44,6 +44,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     command: >
       sh -c "uv run alembic upgrade head &&
              uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -62,6 +67,19 @@ services:
       - /app/apps/frontend/node_modules
     depends_on:
       - backend
+
+  # Optional: local Jaeger all-in-one, only started with
+  # `docker compose --profile observability up`. Pair with OTEL_ENABLED=true
+  # and OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317 in apps/backend/.env
+  # to see traces at http://localhost:16686.
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    profiles: ["observability"]
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317" # OTLP gRPC receiver
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
 
 volumes:
   postgres_data:

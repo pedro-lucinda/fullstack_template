@@ -23,6 +23,11 @@ workflow inspired by AWS's agentic SDLC.
 - Auth0 JWT verification (JWKS-based)
 - LangChain example agent (`app/modules/agent/`) — a tool-calling agent exposed at
   `POST /api/v1/agent/chat`, see `specs/agent-chat/`
+- Observability: structured JSON/console logging with per-request correlation IDs
+  (`app/core/logging.py`, `app/core/middleware.py`), liveness/readiness health
+  probes (`/health/live`, `/health/ready`), optional OpenTelemetry tracing
+  (`app/core/telemetry.py`, opt-in via `OTEL_ENABLED`) and optional Sentry error
+  tracking (`app/core/sentry.py`, opt-in via `SENTRY_DSN`)
 - uv for dependency/environment management
 - pytest for tests
 
@@ -52,6 +57,19 @@ docker compose up --build
 - Redis: localhost:6379
 
 The backend container runs Alembic migrations automatically on startup.
+
+Health checks: `GET /health/live` reports whether the process is up (used by
+the `backend` service's Docker healthcheck); `GET /health/ready` additionally
+pings Postgres and Redis and returns `503` if either is unreachable.
+
+To see distributed traces locally, opt into the `observability` compose
+profile (starts a local Jaeger instance) and enable tracing in the backend's
+`.env`:
+```bash
+docker compose --profile observability up --build
+# apps/backend/.env: OTEL_ENABLED=true, OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+```
+Jaeger UI: http://localhost:16686
 
 ### Option B: Run locally
 

@@ -62,6 +62,15 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
   and as a cache-aside example on `GET /api/v1/todos` (invalidated on every write in
   `app/modules/todos/service.py`). Tests override `get_redis` with `fakeredis` — see
   `tests/conftest.py` — so they never need a live Redis instance.
+- **Observability**: `app/core/logging.py` configures `structlog` (JSON in prod via
+  `LOG_FORMAT=json`, human-readable console in dev); `app/core/middleware.py` binds a
+  per-request `request_id` (from/echoed as the `X-Request-ID` header) into structlog's
+  contextvars and logs one access-log line per request. `GET /health/live` is a static
+  liveness probe; `GET /health/ready` (via `Depends(get_db)`/`Depends(get_redis)`, so tests can
+  override it the normal way) actually pings Postgres and Redis and returns `503` if either is
+  down. OpenTelemetry tracing (`app/core/telemetry.py`) and Sentry (`app/core/sentry.py`) are
+  both opt-in no-ops unless `OTEL_ENABLED=true` / `SENTRY_DSN` is set — safe to import in tests
+  without any collector/DSN configured.
 - Verified commands: `cd apps/backend && uv run ruff check . && uv run pytest`.
 
 ## Frontend conventions

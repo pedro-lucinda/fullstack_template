@@ -33,6 +33,22 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     openai_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
 
+    # Structured logging. "console" is human-readable (dev), "json" is one
+    # JSON object per line (prod-friendly, e.g. for log aggregators).
+    log_level: str = "INFO"
+    log_format: str = "console"
+
+    # OpenTelemetry tracing. Disabled by default so it's a zero-cost, opt-in
+    # addition — enable locally by setting otel_enabled=true and running the
+    # `jaeger` compose service (see `docker-compose.yml`'s `observability` profile).
+    otel_enabled: bool = False
+    otel_service_name: str = "backend"
+    otel_exporter_otlp_endpoint: str = "http://localhost:4317"
+
+    # Sentry error tracking. Disabled unless a DSN is provided.
+    sentry_dsn: str = ""
+    sentry_traces_sample_rate: float = Field(default=0.0, ge=0.0, le=1.0)
+
     @property
     def database_url(self) -> str:
         """Build the async Postgres DSN from its component parts.

@@ -4,7 +4,8 @@ export type { ChatWithAgentApiV1AgentChatPost200, ChatWithAgentApiV1AgentChatPos
 export type { CreateTodoApiV1TodosPost201, CreateTodoApiV1TodosPost422, CreateTodoApiV1TodosPostMutation, CreateTodoApiV1TodosPostMutationRequest, CreateTodoApiV1TodosPostMutationResponse } from "./types/CreateTodoApiV1TodosPost.ts";
 export type { DeleteTodoApiV1TodosTodoIdDelete204, DeleteTodoApiV1TodosTodoIdDelete422, DeleteTodoApiV1TodosTodoIdDeleteMutation, DeleteTodoApiV1TodosTodoIdDeleteMutationResponse, DeleteTodoApiV1TodosTodoIdDeletePathParams } from "./types/DeleteTodoApiV1TodosTodoIdDelete.ts";
 export type { HTTPValidationError } from "./types/HTTPValidationError.ts";
-export type { HealthHealthGet200, HealthHealthGetQuery, HealthHealthGetQueryResponse } from "./types/HealthHealthGet.ts";
+export type { HealthLiveHealthLiveGet200, HealthLiveHealthLiveGetQuery, HealthLiveHealthLiveGetQueryResponse } from "./types/HealthLiveHealthLiveGet.ts";
+export type { HealthReadyHealthReadyGet200, HealthReadyHealthReadyGetQuery, HealthReadyHealthReadyGetQueryResponse } from "./types/HealthReadyHealthReadyGet.ts";
 export type { ListTodosApiV1TodosGet200, ListTodosApiV1TodosGetQuery, ListTodosApiV1TodosGetQueryResponse } from "./types/ListTodosApiV1TodosGet.ts";
 export type { TodoCreate } from "./types/TodoCreate.ts";
 export type { TodoRead } from "./types/TodoRead.ts";
@@ -13,6 +14,7 @@ export type { ValidationError } from "./types/ValidationError.ts";
 export { chatWithAgentApiV1AgentChatPost } from "./clients/chatWithAgentApiV1AgentChatPost.ts";
 export { createTodoApiV1TodosPost } from "./clients/createTodoApiV1TodosPost.ts";
 export { deleteTodoApiV1TodosTodoIdDelete } from "./clients/deleteTodoApiV1TodosTodoIdDelete.ts";
-export { healthHealthGet } from "./clients/healthHealthGet.ts";
+export { healthLiveHealthLiveGet } from "./clients/healthLiveHealthLiveGet.ts";
+export { healthReadyHealthReadyGet } from "./clients/healthReadyHealthReadyGet.ts";
 export { listTodosApiV1TodosGet } from "./clients/listTodosApiV1TodosGet.ts";
 export { toggleTodoApiV1TodosTodoIdTogglePatch } from "./clients/toggleTodoApiV1TodosTodoIdTogglePatch.ts";

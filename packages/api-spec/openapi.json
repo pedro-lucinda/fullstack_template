@@ -219,13 +219,14 @@
         ]
       }
     },
-    "/health": {
+    "/health/live": {
       "get": {
         "tags": [
           "health"
         ],
-        "summary": "Health",
-        "operationId": "health_health_get",
+        "summary": "Health Live",
+        "description": "Liveness probe: is the process itself up? Never checks dependencies \u2014\na dependency outage should not cause an orchestrator to restart a\nperfectly healthy process (see `/health/ready` for that check).",
+        "operationId": "health_live_health_live_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -236,8 +237,28 @@
                     "type": "string"
                   },
                   "type": "object",
-                  "title": "Response Health Health Get"
+                  "title": "Response Health Live Health Live Get"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Ready",
+        "description": "Readiness probe: can this instance actually serve traffic right now?\n\nPings Postgres and Redis directly (unlike `/health/live`, which is a\nstatic response) so an orchestrator can route around an instance whose\ndependencies are unreachable, e.g. mid-database-restart. Depends on the\nsame `get_db`/`get_redis` dependencies used elsewhere so tests can swap\nin fakes the same way they do for every other route.",
+        "operationId": "health_ready_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
