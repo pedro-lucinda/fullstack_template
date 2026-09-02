@@ -14,12 +14,17 @@ pre-commit:
     - name: backend ruff check
       root: apps/backend
       glob: "apps/backend/**/*.py"
-      run: uv run ruff check {staged_files}
+      # --force-exclude: without it, ruff ignores pyproject.toml's
+      # extend-exclude (alembic/env.py, alembic/versions/**) whenever files
+      # are passed explicitly, as lefthook does via {staged_files} — only
+      # directory-scan invocations (`ruff check .`, used in CI/pnpm lint)
+      # honor excludes by default.
+      run: uv run ruff check --force-exclude {staged_files}
 
     - name: backend ruff format
       root: apps/backend
       glob: "apps/backend/**/*.py"
-      run: uv run ruff format --check {staged_files}
+      run: uv run ruff format --check --force-exclude {staged_files}
 
     - name: frontend eslint
       root: apps/frontend
