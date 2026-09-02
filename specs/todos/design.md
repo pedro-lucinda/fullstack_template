@@ -8,7 +8,7 @@ FastAPI dependency (`get_current_user`) that verifies the token signature agains
 Auth0's JWKS endpoint and extracts the `sub` claim as the user id.
 
 ## Data Model
-Table `todos` (`apps/backend/app/models/todo.py`):
+Table `todos` (`apps/backend/app/modules/todos/models.py`):
 - `id: UUID` (PK, server-generated)
 - `owner_id: str` (Auth0 `sub` claim, indexed)
 - `title: str` (max 200)

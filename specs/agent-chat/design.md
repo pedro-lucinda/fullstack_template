@@ -1,10 +1,10 @@
 # Design: Agent Chat
 
 ## Architecture Overview
-`app/agents/agent.py` builds a LangChain tool-calling agent using
+`app/modules/agent/service.py` builds a LangChain tool-calling agent using
 [`create_agent`](https://docs.langchain.com/oss/python/langchain/agents)
 (LangGraph-based agent runtime) with `ChatOpenAI` as the model and the tools
-in `app/agents/tools.py`. The FastAPI route depends on `get_agent()` (an
+in `app/modules/agent/tools.py`. The FastAPI route depends on `get_agent()` (an
 `lru_cache`d factory, same DI pattern as `get_db`/`get_current_user`), so
 tests can override it with a fake chat model instead of calling a real LLM.
 
@@ -24,9 +24,9 @@ tests can override it with a fake chat model instead of calling a real LLM.
   missing/invalid token.
 
 ## Extending
-- Add tools: append `@tool`-decorated functions in `app/agents/tools.py` and
+- Add tools: append `@tool`-decorated functions in `app/modules/agent/tools.py` and
   register them in `get_tools()`.
-- Swap models: change `build_llm()` in `app/agents/agent.py` (any LangChain
+- Swap models: change `build_llm()` in `app/modules/agent/service.py` (any LangChain
   chat model works, not just `ChatOpenAI`), or use `init_chat_model("provider:model")`.
 - Add memory/streaming: see LangChain's `create_agent` docs for
   `checkpointer` (memory) and streaming support.

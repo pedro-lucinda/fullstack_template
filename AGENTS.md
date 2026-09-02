@@ -8,7 +8,8 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
 ## Layout
 
 - `apps/backend` — FastAPI + SQLAlchemy (async) + Alembic + Postgres + Redis + Auth0 JWT auth,
-  managed with `uv`. LangChain example agent under `app/agents/`.
+  managed with `uv`. Organized as a **modular monolith** (see below) so a module can be split
+  out into its own microservice later with minimal rework.
 - `apps/frontend` — Vite + React + TypeScript + Tailwind + shadcn-style components (hand-built
   under `src/components/ui/`) + Zustand (state only — **no React Context** for app state) +
   Auth0 React SDK, managed with `pnpm`.
@@ -34,18 +35,32 @@ code-intelligence tools — use it instead of blind grepping when exploring or a
 
 ## Backend conventions
 
+- **Modular-monolith layout**: each business domain lives under `app/modules/<name>/` as a
+  self-contained package — `router.py` (FastAPI routes, HTTP concerns only), `service.py`
+  (business logic, framework-agnostic), `models.py` (SQLAlchemy ORM), `schemas.py` (Pydantic
+  request/response models). See `app/modules/todos/` and `app/modules/agent/`. `app/core/` holds
+  only cross-cutting platform concerns shared by every module (`config.py`, `db.py`, `redis.py`,
+  `auth.py`, `constants.py`).
+  - **New features**: add a new `app/modules/<name>/` package rather than growing an existing
+    one or adding top-level `app/api|models|schemas` folders — that layered-by-technical-concern
+    structure was intentionally replaced by layering-by-domain.
+  - **Rule of thumb for microservice extraction**: a module should only import from `app.core`
+    and its own package, never reach into another module's `models`/`service` internals — treat
+    cross-module calls the same way you'd treat a call to another service (i.e. avoid them, or
+    go through a public interface). This is what keeps `app/modules/<name>/` copy-pasteable into
+    a standalone service later (bringing along whichever bits of `app/core` it needs).
 - All I/O in request paths must be async — no blocking `httpx.get`/`requests.get` calls inside
   `async def`. Use `httpx.AsyncClient` (see `app/core/auth.py` for the JWKS-fetch pattern).
 - Route prefixes use the `API_V1_PREFIX` constant from `app/core/constants.py`, not a literal
   `"/api/v1"` string.
 - Ownership checks return **404, not 403**, when a resource exists but belongs to another user
-  (avoids leaking existence — see `_get_owned_todo` in `app/api/routes/todos.py`).
+  (avoids leaking existence — see `_get_owned_todo_or_404` in `app/modules/todos/router.py`).
 - `ruff` config (`apps/backend/pyproject.toml`) ignores `B008` (FastAPI's idiomatic
   `Depends()` default triggers a bugbear false positive) and excludes `alembic/versions`/
   `alembic/env.py` from linting.
 - Redis (`app/core/redis.py`, `get_redis`) is used for the Auth0 JWKS cache (`app/core/auth.py`)
   and as a cache-aside example on `GET /api/v1/todos` (invalidated on every write in
-  `app/api/routes/todos.py`). Tests override `get_redis` with `fakeredis` — see
+  `app/modules/todos/service.py`). Tests override `get_redis` with `fakeredis` — see
   `tests/conftest.py` — so they never need a live Redis instance.
 - Verified commands: `cd apps/backend && uv run ruff check . && uv run pytest`.
 

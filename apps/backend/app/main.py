@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import agent, todos
 from app.core.config import get_settings
+from app.modules.agent.router import router as agent_router
+from app.modules.todos.router import router as todos_router
 
 settings = get_settings()
 
@@ -16,8 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(todos.router)
-app.include_router(agent.router)
+app.include_router(todos_router)
+app.include_router(agent_router)
 
 
 @app.get("/health", tags=["health"])

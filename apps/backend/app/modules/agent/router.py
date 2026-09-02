@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from app.agents.agent import Agent, get_agent
 from app.core.auth import CurrentUser, get_current_user
 from app.core.constants import API_V1_PREFIX
-from app.schemas.agent import AgentChatRequest, AgentChatResponse
+from app.modules.agent.schemas import AgentChatRequest, AgentChatResponse
+from app.modules.agent.service import Agent, get_agent
 
 router = APIRouter(prefix=f"{API_V1_PREFIX}/agent", tags=["agent"])
 

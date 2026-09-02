@@ -1,13 +1,13 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
 from app.core.config import get_settings
 from app.core.db import Base
-from app.models import todo  # noqa: F401  (ensures model metadata is registered)
+from app.modules.todos import models as todos_models  # noqa: F401  (registers model metadata)
 
 config = context.config
 

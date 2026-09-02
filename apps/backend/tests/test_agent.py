@@ -5,8 +5,8 @@ from httpx import AsyncClient
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage
 
-from app.agents.agent import build_agent, get_agent
 from app.main import app
+from app.modules.agent.service import build_agent, get_agent
 
 
 class FakeToolCallingModel(GenericFakeChatModel):

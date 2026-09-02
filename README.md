@@ -21,7 +21,7 @@ workflow inspired by AWS's agentic SDLC.
 - Redis — caches the Auth0 JWKS lookup and the todos list endpoint (cache-aside,
   invalidated on writes); see `app/core/redis.py`
 - Auth0 JWT verification (JWKS-based)
-- LangChain example agent (`app/agents/`) — a tool-calling agent exposed at
+- LangChain example agent (`app/modules/agent/`) — a tool-calling agent exposed at
   `POST /api/v1/agent/chat`, see `specs/agent-chat/`
 - uv for dependency/environment management
 - pytest for tests
@@ -109,7 +109,12 @@ feature.
 ```
 apps/
   frontend/         Vite + React + TS app
-  backend/          FastAPI app
+  backend/          FastAPI app, organized as a modular monolith:
+                       app/modules/<name>/  One package per business domain
+                                            (router.py, service.py, models.py,
+                                            schemas.py) — see `todos/`, `agent/`.
+                       app/core/            Shared platform code only (config,
+                                            db, redis, auth) — no business logic.
 packages/
   api-spec/         Generated OpenAPI spec (source of truth for the API contract)
 specs/
@@ -117,3 +122,9 @@ specs/
   todos/            Worked example spec for the included sample feature
 docker-compose.yml  Dev-only orchestration (Postgres + Redis + backend + frontend)
 ```
+
+The backend's module boundaries are intentionally microservice-shaped: each
+`app/modules/<name>/` package only depends on `app/core/` and itself, never on
+another module's internals. Splitting one out later means copying its folder
+(plus whatever `app/core/` pieces it needs) into a new service — no
+disentangling required.

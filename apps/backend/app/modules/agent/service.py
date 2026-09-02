@@ -2,7 +2,7 @@
 `create_agent` (LangGraph-based agent runtime). See
 https://docs.langchain.com/oss/python/langchain/agents.
 
-This is intentionally small — swap the model, extend `app/agents/tools.py`,
+This is intentionally small — swap the model, extend `app/modules/agent/tools.py`,
 or add LangChain middleware as your use case grows.
 """
 
@@ -14,8 +14,8 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 
-from app.agents.tools import get_tools
 from app.core.config import get_settings
+from app.modules.agent.tools import get_tools
 
 settings = get_settings()
 
